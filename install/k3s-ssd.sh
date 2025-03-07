@@ -119,6 +119,8 @@ yq eval -i ".global.ssdUI.host = \"$HOST\" | .organisationname = \"$ORG_NAME\"" 
 # Install SSD with the modified values.yaml
 echo "Installing SSD with the modified values.yaml..."
 helm install ssd opsmxssd/ssd -f "$VALUES_FILE" -n ssd --timeout=600s
+
+echo -e "\n\n"
 echo "Installation is completed, but please verify all the pods are up and running before use."
 echo "It takes about 7 to 15 mins for all the pods to be RUNNING depending on the Cluster performance"
 echo "Wish you good luck with OpsMx SSD!"
