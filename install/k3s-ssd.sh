@@ -112,9 +112,6 @@ helm repo update
 helm repo add opsmxssd https://opsmx.github.io/enterprise-ssd
 kubectl create ns ssd
 
-# Define the path to the values.yaml file
-VALUES_FILE="/root/enterprise-ssd/charts/ssd/ssd-minimal-values.yaml"
-
 # Use yq to modify the values.yaml file dynamically based on the command-line arguments
 echo "Modifying values.yaml with host ($HOST) and organisationname ($ORG_NAME) parameters..."
 yq eval -i ".global.ssdUI.host = \"$HOST\" | .organisationname = \"$ORG_NAME\"" "$VALUES_FILE"
