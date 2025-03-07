@@ -12,6 +12,37 @@ fi
 # Assign command-line arguments to variables
 HOST=$1
 ORG_NAME=$2
+PATH=$PATH:/usr/local/bin
+
+echo "Current OS platform details..."
+echo "-----------------------------"
+cat /etc/os-release
+echo "-----------------------------"
+echo 
+
+installGit() {
+  if command -v git > /dev/null; then return; fi
+  echo 'Installing git CLI tool...'
+  if grep -q 'ID_LIKE=.*debian' /etc/os-release; then
+    apt update && sudo apt install -y git
+  elif grep -q 'ID_LIKE=.*rhel\|centos\|fedora' /etc/os-release; then
+    dnf install -y git
+  else
+    echo "Unsupported OS"
+    exit 1
+  fi
+}
+
+#installHelm() {
+#  if command -v helm > /dev/null; then return; fi
+#  echo 'Installing helm CLI tool...'
+#  curl -fsSL -o helm3.tar.gz https://get.helm.sh/helm-v3.17.1-linux-amd64.tar.gz
+#  tar -zxvf helm3.tar.gz
+#  cp -v  linux-amd64/helm /usr/local/bin/
+#  $PATH
+#  command -v helm
+#}
+
 
 installHelm() {
   if command -v helm > /dev/null; then return; fi
@@ -29,6 +60,7 @@ installYq() {
   cp -v $PWD/yq /usr/local/bin/yq
 }
 
+installGit
 installHelm
 installYq
 
@@ -56,6 +88,10 @@ done
 # Print a confirmation once the node is in Ready state
 echo "K3s node is in Ready state."
 
+mkdir -p $HOME/.kube
+cp -v /etc/rancher/k3s/k3s.yaml $HOME/.kube/k3s.yaml
+export KUBECONFIG=$HOME/.kube/k3s.yaml
+
 # Installing Cert-Manager and its dependencies
 echo "Installing Cert-Manager..."
 helm repo add jetstack https://charts.jetstack.io --force-update
@@ -73,7 +109,6 @@ sleep 60s
 # Add your custom Helm repository
 echo "Adding custom Helm repository for SSD..."
 helm repo update
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 helm repo add opsmxssd https://opsmx.github.io/enterprise-ssd
 kubectl create ns ssd
 
@@ -87,6 +122,6 @@ yq eval -i ".global.ssdUI.host = \"$HOST\" | .organisationname = \"$ORG_NAME\"" 
 # Install SSD with the modified values.yaml
 echo "Installing SSD with the modified values.yaml..."
 helm install ssd opsmxssd/ssd -f "$VALUES_FILE" -n ssd --timeout=600s
-echo "SSD installation complete."
-
-echo "Script execution complete."
+echo "Installation is completed, but please verify all the pods are up and running before use."
+echo "It takes about 7 to 15 mins for all the pods to be RUNNING depending on the Cluster performance"
+echo "Wish you good luck with OpsMx SSD!"
