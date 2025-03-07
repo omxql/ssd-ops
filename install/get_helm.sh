@@ -24,19 +24,19 @@ installHelm() {
 installYq() {
   if command -v yq > /dev/null; then return; fi
   echo 'Installing yq CLI tool...'
-  curl -fsSL -o yq  https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+  wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O $PWD/yq
   chmod +x $PWD/yq
   cp -v $PWD/yq /usr/local/bin/yq
 }
 
-installHelm
-installYq
-
 VALUES_FILE="$PWD/ssd-minimal-values.yaml"
 [ ! -s $VALUES_FILE ] && curl -OL https://raw.githubusercontent.com/OpsMx/enterprise-ssd/2025-01/charts/ssd/ssd-minimal-values.yaml
+
+installHelm
+installYq
 [ ! -s $VALUES_FILE ] && exit 1
 
-#exit 0
+exit 0
 
 # Install K3s
 echo "Installing K3s..."
